@@ -87,12 +87,31 @@ export async function readData(reader, isConnected, port, dispatch) {
   }
 }
 
+// Define the writeData function
+// It writes data from the serial port and dispatches it to the redux store
+export async function writeData(writer, isConnected, port, dataToWrite) {
+  let dataBuffer = []; // Buffer for storing incoming data
+  let receivedData; // Variable for storing received data
+
+  // While the port is connected and writable
+  while (isConnected && port.writable) {
+    try {
+      // wrote data to the port
+      await writer.write(dataToWrite); // Write data through the writer
+    } catch (error) {
+      // Log any errors that occur while reading data
+      console.error("Error writing data:", error);
+    }
+  }
+}
+
 // Define the connect function
 // It connects to a serial port and sets up the reader
 export async function connect(
   setportFound,
   setPort,
   setReader,
+  setWriter,
   dispatch,
   baudRate
 ) {
@@ -111,6 +130,7 @@ export async function connect(
     // Set the port and reader in the state
     setPort(newPort);
     setReader(newPort.readable.getReader());
+    setWriter(newPort.writable.getWriter());
     // Dispatch the connected action to the redux store
     dispatch(setConnected(true));
     // Clear any existing CSV data from the session storage
@@ -130,7 +150,7 @@ export async function connect(
 
 // Define the disconnect function
 // It disconnects from the serial port and cleans up the reader
-export async function disconnect(dispatch, reader, setReader, port, setPort) {
+export async function disconnect(dispatch, reader, setReader, writer, setWriter, port, setPort) {
   try {
     // Dispatch the disconnected action to the redux store
     dispatch(setConnected(false));
@@ -138,6 +158,12 @@ export async function disconnect(dispatch, reader, setReader, port, setPort) {
     if (reader) {
       reader.releaseLock();
       setReader(null);
+    }
+
+    // If a writer exists, release its lock and clear it from the state
+    if(writer) {
+      writer.releaseLock();
+      setWriter(null);
     }
 
     // If a port exists, close it and clear it from the state

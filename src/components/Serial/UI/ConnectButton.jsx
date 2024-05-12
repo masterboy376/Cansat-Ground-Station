@@ -12,6 +12,7 @@ const ConnectButton = () => {
   // Define states for the port, reader, and portFound
   const [port, setPort] = useState(null);
   const [reader, setReader] = useState(null);
+  const [writer, setWriter] = useState(null);
   const [portFound, setportFound] = useState(true);
 
   // Get the connected, baudRate, and launch values from the redux store
@@ -26,9 +27,9 @@ const ConnectButton = () => {
   // It connects or disconnects based on the connected state
   const handleClick = async () => {
     if (!connected) {
-      await connect(setportFound, setPort, setReader, dispatch, baudRate);
+      await connect(setportFound, setPort, setReader, setWriter, dispatch, baudRate);
     } else {
-      await disconnect(dispatch, reader, setReader, port, setPort);
+      await disconnect(dispatch, reader, setReader, writer, setWriter, port, setPort);
     }
   };
 
