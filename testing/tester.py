@@ -1,6 +1,7 @@
 import serial
 import struct
 import time
+from multiprocessing import Process
 
 # Define the serial port and baud rate
 serial_port = "COM1"  # Change this to match your serial port
@@ -26,7 +27,17 @@ footer = 0
 # Open the serial port
 ser = serial.Serial(serial_port, baud_rate, timeout=1)
 
-try:
+# listen to serial port
+def listen():
+    while True:
+
+        #read data from serial port
+        recived_data = ser.readline()
+
+        print("Recived telemetry data:", recived_data)
+
+# write to serial port
+def write():
     while True:
         packetCount += 1
 
@@ -59,6 +70,10 @@ try:
 
         # Wait for 1 second
         time.sleep(0.01)
+
+try:
+    Process(target=listen).start()
+    Process(target=write).start()
 
 except KeyboardInterrupt:
     print("Stopping script...")

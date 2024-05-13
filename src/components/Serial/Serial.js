@@ -90,9 +90,6 @@ export async function readData(reader, isConnected, port, dispatch) {
 // Define the writeData function
 // It writes data from the serial port and dispatches it to the redux store
 export async function writeData(writer, isConnected, port, dataToWrite) {
-  let dataBuffer = []; // Buffer for storing incoming data
-  let receivedData; // Variable for storing received data
-
   // While the port is connected and writable
   while (isConnected && port.writable) {
     try {
